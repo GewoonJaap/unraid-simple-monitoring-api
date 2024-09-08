@@ -269,7 +269,7 @@ func readDiskIni() map[string]DiskIni {
         pathToQuery = filepath.Join(hostFsPrefix, pathToQuery)
     }
 
-    diskInfoMap := make(map[string]DiskInfo)
+    diskIniMap := make(map[string]DiskIni)
 
     disks, err := ini.Load(pathToQuery)
     if err != nil {
@@ -307,13 +307,13 @@ func readDiskIni() map[string]DiskIni {
             slog.Debug("Disk temp unavailable", "disk", sectionName)
         }
 
-        diskInfoMap[sectionName] = DiskIni{
+        diskIniMap[sectionName] = DiskIni{
             ID:   idString.String(),
             Temp: temp,
         }
     }
 
-    return diskInfoMap
+    return diskIniMap
 }
 
 func AggregateDiskStatuses(disks []DiskStatus) (status DiskStatus) {
