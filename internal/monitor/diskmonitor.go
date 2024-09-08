@@ -29,17 +29,20 @@ type DiskStatus struct {
 	FreePercent float64 `json:"free_percent"`
 	Temp        uint64  `json:"temp"`
 	Id          string  `json:"disk_id"`
+	IsSpinning  bool    `json:"is_spinning"`
 }
 
 type ParityStatus struct {
-	Name string `json:"name"`
-	Temp uint64 `json:"temp"`
-	Id          string  `json:"disk_id"`
+	Name 		string `json:"name"`
+	Temp 		uint64 `json:"temp"`
+	Id   		string  `json:"disk_id"`
+	IsSpinning  bool    `json:"is_spinning"`
 }
 
 type DiskIni struct {
     ID   string
     Temp uint64
+	Spundown bool
 }
 
 type DiskMonitor struct {
@@ -111,6 +114,7 @@ func (monitor *DiskMonitor) ComputeDiskUsage() ([]DiskStatus, []DiskStatus, []Pa
 			
 			disk.Value.Id = diskIni.ID
 			disk.Value.Temp = diskIni.Temp
+			disk.Value.IsSpinning = !diskIni.Spundown
 
 			disks[disk.Index] = disk.Value
 		}
@@ -128,6 +132,7 @@ func (monitor *DiskMonitor) ComputeDiskUsage() ([]DiskStatus, []DiskStatus, []Pa
 				Name: name,
 				Temp: diskIni.Temp,
 				Id: diskIni.ID,
+				IsSpinning: !diskIni.Spundown,
 			})
 		}
 	}
@@ -307,9 +312,12 @@ func readDiskIni() map[string]DiskIni {
             slog.Debug("Disk temp unavailable", "disk", sectionName)
         }
 
+		spunDown, err := section.GetKey("spundown")
+
         diskIniMap[sectionName] = DiskIni{
             ID:   idString.String(),
             Temp: temp,
+			Spundown: spunDown.String() == "1"
         }
     }
 
